@@ -11,7 +11,17 @@ import { globalRegister } from './global'
 //测试发起请求是否成功
 jcRequest.request({
   url: '/home/multidata',
-  method: 'GET'
+  method: 'GET',
+  interceptors: {
+    requestInterceptor: (config) => {
+      console.log('单独请求的config')
+      return config
+    },
+    responseInterceptor: (res) => {
+      console.log('单独响应的res')
+      return res
+    }
+  }
 })
 
 const app = createApp(App)

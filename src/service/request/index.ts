@@ -1,19 +1,7 @@
 //只有这个文件会对axios产生依赖
 import axios from 'axios'
-import type { AxiosInstance, AxiosRequestConfig } from 'axios'
-
-//因为AxiosRequestConfig类型中是没有关于拦截器所需要的类型，所以我们需要自己定义
-interface JCRequestInterceptors {
-  requestInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig
-  requestInterceptorCatch?: (err: any) => any
-  responseInterceptor?: (config: AxiosRequestConfig) => AxiosRequestConfig
-  responseInterceptorCatch?: (err: any) => any
-}
-
-interface JCRequestConfig extends AxiosRequestConfig {
-  //通过接口的继承便可以使用所定义好的拦截器了
-  interceptors?: JCRequestInterceptors
-}
+import type { AxiosInstance } from 'axios'
+import type { JCRequestInterceptors, JCRequestConfig } from './type'
 
 class JCRequest {
   //允许我们创建不同的实例对象
@@ -25,7 +13,7 @@ class JCRequest {
     ;(this.instance = axios.create(config)),
       (this.intercepors = config.interceptors)
 
-    //那么此时便可以使用拦截器了
+    //从config中取出的拦截器是属于对应的实例的
     this.instance.interceptors.request.use(
       this.intercepors?.requestInterceptor,
       this.intercepors?.requestInterceptorCatch
@@ -34,11 +22,41 @@ class JCRequest {
       this.intercepors?.responseInterceptor,
       this.intercepors?.responseInterceptorCatch
     )
+
+    //添加所有实例都有的拦截器
+    this.instance.interceptors.request.use(
+      (config) => {
+        console.log('所有的请求都有的拦截器：请求成功')
+        return config
+      },
+      (err) => {
+        console.log('所有的请求都有的拦截器：请求失败')
+        return err
+      }
+    )
+
+    this.instance.interceptors.response.use(
+      (res) => {
+        console.log('所有的请求都有的拦截器：响应成功')
+        return res
+      },
+      (err) => {
+        console.log('所有的请求都有的拦截器：响应失败')
+        return err
+      }
+    )
   }
 
-  //发起请求
-  request(config: AxiosRequestConfig): void {
+  //发起请求并且添加只针对这个单个请求的拦截器
+  request(config: JCRequestConfig): void {
+    //外界很可能针对此请求对config作出改变，因此我们需要拿到修改后的config
+    if (config.interceptors?.requestInterceptor) {
+      config = config.interceptors.requestInterceptor(config)
+    }
     this.instance.request(config).then((res) => {
+      if (config.interceptors?.responseInterceptor) {
+        res = config.interceptors.responseInterceptor(res)
+      }
       console.log(res)
     })
   }
