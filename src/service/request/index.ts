@@ -67,7 +67,7 @@ class JCRequest {
   }
 
   //发起请求并且添加只针对这个单个请求的拦截器
-  request<T>(config: JCRequestConfig): Promise<T> {
+  request<T>(config: JCRequestConfig<T>): Promise<T> {
     return new Promise((resolve, reject) => {
       //外界很可能针对此请求对config作出改变，因此我们需要拿到修改后的config
       if (config.interceptors?.requestInterceptor) {
@@ -101,19 +101,19 @@ class JCRequest {
     })
   }
 
-  get<T>(config: JCRequestConfig): Promise<T> {
+  get<T>(config: JCRequestConfig<T>): Promise<T> {
     return this.request<T>({ ...config, method: 'GET' })
   }
 
-  post<T>(config: JCRequestConfig): Promise<T> {
+  post<T>(config: JCRequestConfig<T>): Promise<T> {
     return this.request<T>({ ...config, method: 'POST' })
   }
 
-  delete<T>(config: JCRequestConfig): Promise<T> {
+  delete<T>(config: JCRequestConfig<T>): Promise<T> {
     return this.request<T>({ ...config, method: 'DELETE' })
   }
 
-  patch<T>(config: JCRequestConfig): Promise<T> {
+  patch<T>(config: JCRequestConfig<T>): Promise<T> {
     return this.request<T>({ ...config, method: 'PATCH' })
   }
 }

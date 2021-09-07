@@ -2,7 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import 'element-plus/dist/index.css'
-
+import 'normalize.css'
+import './assets/css/index.less'
 import jcRequest from './service'
 import router from './router/index'
 import store from './store/index'
